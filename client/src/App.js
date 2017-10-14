@@ -17,20 +17,24 @@ class App extends Component {
       randomWords: [],
       freqData: {},
       visLoading: true,
-      visError: false
+      visError: false,
+      // Vis interaction
+      clickedWords: {}
     };
     
     // Vis methods
     this.calcFreq = this.calcFreq.bind(this);
     this.getRandomWords = this.getRandomWords.bind(this);
     this.getScrapedWords = this.getScrapedWords.bind(this);
+    // Vis interaction method
+    this.handleClickedWord = this.handleClickedWord.bind(this);
   }
 
   /**
    * getScrapedWords - fetches scraped data from server
    */
   getScrapedWords() {
-    fetch('http://localhost:8080/scraper')
+    fetch('http://localhost:8080/api/frequency-test')
     .then((response) => response.json())
     .then(scrapedWords => {
       setTimeout(() => this.calcFreq(), 100);
@@ -56,7 +60,7 @@ class App extends Component {
    *    generated in returned object
    */
   getRandomWords(count = 10, max = 10) {
-    fetch(`http://localhost:8080/faker?count=${count}&max=${max}`)
+    fetch(`http://localhost:8080/api/faker?count=${count}&max=${max}`)
     .then((response) => response.json())
     .then(randomWords => {
       this.setState({
@@ -89,6 +93,16 @@ class App extends Component {
     });
   }
 
+  handleClickedWord(item) {
+    let word = item.text;
+    let clickedWords = Object.assign(this.state.clickedWords);
+    if(!clickedWords[word]) clickedWords[word] = true;
+    else clickedWords[word] = false;
+    this.setState({
+      clickedWords: clickedWords
+    });
+  }
+
   render() {
     return (
       <div className="App">
@@ -104,6 +118,7 @@ class App extends Component {
           randomWords={this.state.randomWords} 
           scrapedWords={this.state.scrapedWords}
           getRandomWords={this.getRandomWords}
+          handleClickedWord={this.handleClickedWord}
         /> : null}
       </div>
     );
